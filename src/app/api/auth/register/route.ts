@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       email: validatedData.email,
       password: validatedData.password,
       organizationName: validatedData.organizationName,
-      role: validatedData.role,
+      ...(validatedData.role && { role: validatedData.role }),
     });
 
     // Retornar apenas dados necessários (sem passwordHash)
