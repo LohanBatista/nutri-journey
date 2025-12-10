@@ -9,8 +9,14 @@ if (!secret && process.env.NODE_ENV !== "test") {
   );
 }
 
+const resolvedSecret =
+  secret ||
+  (process.env.NODE_ENV === "development"
+    ? "development-secret-key-minimum-32-characters-long"
+    : undefined);
+
 export const authConfig: NextAuthConfig = {
-  secret: secret || (process.env.NODE_ENV === "development" ? "development-secret-key-minimum-32-characters-long" : undefined),
+  ...(resolvedSecret !== undefined && { secret: resolvedSecret }),
   pages: {
     signIn: "/auth/login",
     signOut: "/auth/login",

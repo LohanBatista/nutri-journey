@@ -64,13 +64,19 @@ export class PrismaAnthropometryRepository implements AnthropometryRepository {
         patientId: data.patientId,
         professionalId: data.professionalId,
         date: data.date,
-        weightKg: data.weightKg,
-        heightM: data.heightM,
-        bmi: data.bmi,
-        waistCircumference: data.waistCircumference,
-        hipCircumference: data.hipCircumference,
-        armCircumference: data.armCircumference,
-        notes: data.notes,
+        ...(data.weightKg !== undefined && { weightKg: data.weightKg }),
+        ...(data.heightM !== undefined && { heightM: data.heightM }),
+        ...(data.bmi !== undefined && { bmi: data.bmi }),
+        ...(data.waistCircumference !== undefined && {
+          waistCircumference: data.waistCircumference,
+        }),
+        ...(data.hipCircumference !== undefined && {
+          hipCircumference: data.hipCircumference,
+        }),
+        ...(data.armCircumference !== undefined && {
+          armCircumference: data.armCircumference,
+        }),
+        ...(data.notes !== undefined && { notes: data.notes }),
       },
     });
 

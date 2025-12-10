@@ -19,7 +19,7 @@ const navigation = [
   { name: "Programas", href: "/app/programs", icon: Calendar },
   { name: "Relatórios", href: "/app/reports", icon: FileText },
   { name: "Configurações", href: "/app/settings", icon: Settings },
-];
+] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -43,7 +43,7 @@ export function Sidebar() {
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as any}
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200",
                   isActive

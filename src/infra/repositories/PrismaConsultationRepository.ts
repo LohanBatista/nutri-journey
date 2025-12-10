@@ -75,12 +75,22 @@ export class PrismaConsultationRepository implements ConsultationRepository {
         professionalId: data.professionalId,
         dateTime: data.dateTime,
         type: data.type,
-        mainComplaint: data.mainComplaint,
-        nutritionHistory: data.nutritionHistory,
-        clinicalHistory: data.clinicalHistory,
-        objectiveData: data.objectiveData,
-        nutritionDiagnosis: data.nutritionDiagnosis,
-        plan: data.plan,
+        ...(data.mainComplaint !== undefined && {
+          mainComplaint: data.mainComplaint,
+        }),
+        ...(data.nutritionHistory !== undefined && {
+          nutritionHistory: data.nutritionHistory,
+        }),
+        ...(data.clinicalHistory !== undefined && {
+          clinicalHistory: data.clinicalHistory,
+        }),
+        ...(data.objectiveData !== undefined && {
+          objectiveData: data.objectiveData,
+        }),
+        ...(data.nutritionDiagnosis !== undefined && {
+          nutritionDiagnosis: data.nutritionDiagnosis,
+        }),
+        ...(data.plan !== undefined && { plan: data.plan }),
       },
     });
 

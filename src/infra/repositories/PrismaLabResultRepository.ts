@@ -68,8 +68,10 @@ export class PrismaLabResultRepository implements LabResultRepository {
         name: data.name,
         value: String(data.value),
         unit: data.unit,
-        referenceRange: data.referenceRange,
-        notes: data.notes,
+        ...(data.referenceRange !== undefined && {
+          referenceRange: data.referenceRange,
+        }),
+        ...(data.notes !== undefined && { notes: data.notes }),
       },
     });
 

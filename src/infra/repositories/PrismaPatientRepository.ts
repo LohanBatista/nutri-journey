@@ -62,10 +62,10 @@ export class PrismaPatientRepository implements PatientRepository {
         fullName: data.fullName,
         dateOfBirth: data.dateOfBirth,
         sex: data.sex,
-        email: data.email,
-        phone: data.phone,
+        ...(data.email !== undefined && { email: data.email }),
+        ...(data.phone !== undefined && { phone: data.phone }),
         tags: data.tags ?? [],
-        notes: data.notes,
+        ...(data.notes !== undefined && { notes: data.notes }),
         organizationId: data.organizationId,
       },
     });
