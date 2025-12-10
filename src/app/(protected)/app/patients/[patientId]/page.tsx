@@ -10,6 +10,7 @@ import { usePatient } from "@/presentation/patients/hooks/usePatient";
 import { PlansAndGuidanceTab } from "@/presentation/components/nutrition/PlansAndGuidanceTab";
 import { PatientProgramsTab } from "@/presentation/components/patients/PatientProgramsTab";
 import { PatientAiInsightsTab } from "@/presentation/components/ai/PatientAiInsightsTab";
+import { PatientConsultationsTab } from "@/presentation/components/patients/PatientConsultationsTab";
 import { ArrowLeft, Calendar, Mail, Phone, Tag } from "lucide-react";
 
 function calculateAge(dateOfBirth: Date): number {
@@ -250,9 +251,7 @@ export default function PatientDetailPage({
               </TabsContent>
 
               <TabsContent value="consultations" className="space-y-4">
-                <div className="text-slate-400">
-                  <p>Lista de consultas será implementada em breve.</p>
-                </div>
+                <PatientConsultationsTab patientId={patientId} />
               </TabsContent>
 
               <TabsContent value="anthropometry" className="space-y-4">

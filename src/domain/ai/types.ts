@@ -47,3 +47,92 @@ export interface GeneratePatientSummaryOutput {
   textForProfessional: string;
 }
 
+// IA v2 - Diagnóstico Nutricional
+export interface NutritionDiagnosis {
+  title: string;
+  pesFormat: string | null;
+  rationale: string;
+}
+
+export interface GenerateNutritionDiagnosisInput {
+  patientData: {
+    id: string;
+    name: string;
+    sex: "MALE" | "FEMALE" | "OTHER";
+    age: number;
+    clinicalDiagnoses: string[];
+  };
+  recentAnthropometry: {
+    date: Date;
+    weightKg: number | null;
+    bmi: number | null;
+    waistCircumference: number | null;
+  } | null;
+  mainLabResults: {
+    date: Date;
+    name: string;
+    value: string;
+    unit: string;
+    referenceRange: string | null;
+  }[];
+  dietaryPatternSummary: string | null;
+}
+
+export interface GenerateNutritionDiagnosisOutput {
+  diagnoses: NutritionDiagnosis[];
+}
+
+// IA v2 - Material Educativo
+export interface GenerateEducationMaterialInput {
+  topic: string;
+  context: "INDIVIDUAL" | "GROUP";
+  patientInfo?: {
+    name: string;
+    age: number;
+    sex: "MALE" | "FEMALE" | "OTHER";
+    clinicalConditions: string[];
+  };
+  programInfo?: {
+    name: string;
+    description: string;
+    targetAudience: string;
+  };
+}
+
+export interface GenerateEducationMaterialOutput {
+  text: string;
+}
+
+// IA v2 - Resumo de Programa
+export interface GenerateProgramSummaryInput {
+  program: {
+    id: string;
+    name: string;
+    description: string;
+    startDate: Date | null;
+    endDate: Date | null;
+    status: string;
+  };
+  objectives: string;
+  participants: {
+    id: string;
+    name: string;
+    joinDate: Date;
+  }[];
+  meetings: {
+    id: string;
+    date: Date;
+    topic: string;
+    notes: string | null;
+    participantsCount: number;
+  }[];
+  averageEvolution?: {
+    averageWeightChange: number | null;
+    averageBmiChange: number | null;
+    attendanceRate: number;
+  } | null;
+}
+
+export interface GenerateProgramSummaryOutput {
+  text: string;
+}

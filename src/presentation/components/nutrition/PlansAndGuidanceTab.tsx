@@ -23,7 +23,11 @@ import {
   Activity,
   Moon,
   AlertCircle,
+  Sparkles,
+  Loader2,
+  AlertTriangle,
 } from "lucide-react";
+import { useSessionStore } from "../../stores/session-store";
 import type { MealType } from "@/domain/entities/NutritionPlan";
 
 const mealTypeOptions: { value: MealType; label: string }[] = [
@@ -41,6 +45,7 @@ interface PlansAndGuidanceTabProps {
 }
 
 export function PlansAndGuidanceTab({ patientId }: PlansAndGuidanceTabProps) {
+  const { organization } = useSessionStore();
   const {
     nutritionPlans,
     loading: plansLoading,
@@ -61,6 +66,11 @@ export function PlansAndGuidanceTab({ patientId }: PlansAndGuidanceTabProps) {
   const [showPlanForm, setShowPlanForm] = useState(false);
   const [editingPlanId, setEditingPlanId] = useState<string | null>(null);
   const [showGuidanceForm, setShowGuidanceForm] = useState(false);
+  const [showEducationMaterialForm, setShowEducationMaterialForm] = useState(false);
+  const [generatingEducationMaterial, setGeneratingEducationMaterial] = useState(false);
+  const [educationTopic, setEducationTopic] = useState("");
+  const [educationText, setEducationText] = useState("");
+  const [educationError, setEducationError] = useState<string | null>(null);
 
   const [planForm, setPlanForm] = useState({
     title: "",
@@ -449,30 +459,158 @@ export function PlansAndGuidanceTab({ patientId }: PlansAndGuidanceTabProps) {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-semibold text-white">Condutas Gerais</h3>
-          <Button
-            onClick={() => {
-              setShowGuidanceForm(!showGuidanceForm);
-              if (latestGuidance) {
-                setGuidanceForm({
-                  date: new Date(latestGuidance.date)
-                    .toISOString()
-                    .split("T")[0],
-                  hydrationGuidance: latestGuidance.hydrationGuidance || "",
-                  physicalActivityGuidance:
-                    latestGuidance.physicalActivityGuidance || "",
-                  sleepGuidance: latestGuidance.sleepGuidance || "",
-                  symptomManagementGuidance:
-                    latestGuidance.symptomManagementGuidance || "",
-                  notes: latestGuidance.notes || "",
-                });
-              }
-            }}
-            className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            {latestGuidance ? "Atualizar Conduta" : "Nova Conduta"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => {
+                setShowEducationMaterialForm(!showEducationMaterialForm);
+                setEducationTopic("");
+                setEducationText("");
+                setEducationError(null);
+              }}
+              className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30"
+              size="sm"
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Gerar Texto Educativo (IA)
+            </Button>
+            <Button
+              onClick={() => {
+                setShowGuidanceForm(!showGuidanceForm);
+                if (latestGuidance) {
+                  setGuidanceForm({
+                    date: new Date(latestGuidance.date)
+                      .toISOString()
+                      .split("T")[0],
+                    hydrationGuidance: latestGuidance.hydrationGuidance || "",
+                    physicalActivityGuidance:
+                      latestGuidance.physicalActivityGuidance || "",
+                    sleepGuidance: latestGuidance.sleepGuidance || "",
+                    symptomManagementGuidance:
+                      latestGuidance.symptomManagementGuidance || "",
+                    notes: latestGuidance.notes || "",
+                  });
+                }
+              }}
+              className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {latestGuidance ? "Atualizar Conduta" : "Nova Conduta"}
+            </Button>
+          </div>
         </div>
+
+        {/* Formulário de Material Educativo */}
+        {showEducationMaterialForm && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <Card className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  Gerar Texto Educativo com IA
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="education-topic" className="text-slate-300">
+                    Tópico do Material Educativo
+                  </Label>
+                  <Input
+                    id="education-topic"
+                    placeholder="Ex: Alimentação saudável para diabetes"
+                    value={educationTopic}
+                    onChange={(e) => setEducationTopic(e.target.value)}
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                </div>
+
+                {educationError && (
+                  <div className="p-3 rounded-lg bg-red-500/20 border border-red-500/30 text-red-300 text-sm flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    {educationError}
+                  </div>
+                )}
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    onClick={async () => {
+                      if (!educationTopic.trim() || !organization) {
+                        setEducationError("Tópico é obrigatório");
+                        return;
+                      }
+
+                      setGeneratingEducationMaterial(true);
+                      setEducationError(null);
+
+                      try {
+                        const response = await fetch("/api/education-materials", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({
+                            organizationId: organization.id,
+                            topic: educationTopic,
+                            context: "INDIVIDUAL",
+                            patientId,
+                          }),
+                        });
+
+                        if (!response.ok) {
+                          const errorData = await response.json().catch(() => ({}));
+                          throw new Error(errorData.error || "Erro ao gerar material educativo");
+                        }
+
+                        const result = await response.json();
+                        setEducationText(result.material.text);
+                      } catch (err) {
+                        setEducationError(err instanceof Error ? err.message : "Erro desconhecido");
+                      } finally {
+                        setGeneratingEducationMaterial(false);
+                      }
+                    }}
+                    disabled={generatingEducationMaterial || !educationTopic.trim()}
+                    className="bg-primary hover:bg-primary/90 text-white"
+                  >
+                    {generatingEducationMaterial ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Gerando...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Gerar Texto
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {educationText && (
+                  <div className="space-y-2">
+                    <Label className="text-slate-300">Texto Gerado (editável)</Label>
+                    <Textarea
+                      value={educationText}
+                      onChange={(e) => setEducationText(e.target.value)}
+                      className="bg-white/5 border-white/10 text-white min-h-[200px]"
+                      placeholder="O texto gerado aparecerá aqui..."
+                    />
+                    <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-amber-300">
+                          Conteúdo gerado por IA. Revisar antes de utilizar na prática clínica.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
 
         {showGuidanceForm && (
           <motion.div

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { makeCreateConsultationUseCase } from "@/application/factories/makeCreateConsultationUseCase";
+import { PrismaConsultationRepository } from "@/infra/repositories/PrismaConsultationRepository";
 
 const createConsultationSchema = z.object({
   organizationId: z.string().uuid(),
@@ -48,6 +49,66 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const organizationId = searchParams.get("organizationId");
+    const patientId = searchParams.get("patientId");
+    const professionalId = searchParams.get("professionalId");
+    const type = searchParams.get("type");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
+
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: "organizationId is required" },
+        { status: 400 }
+      );
+    }
+
+    const repository = new PrismaConsultationRepository();
+    const filters: {
+      patientId?: string;
+      professionalId?: string;
+      type?: "INITIAL" | "FOLLOW_UP" | "GROUP" | "HOSPITAL";
+      startDate?: Date;
+      endDate?: Date;
+    } = {};
+
+    if (patientId) {
+      filters.patientId = patientId;
+    }
+    if (professionalId) {
+      filters.professionalId = professionalId;
+    }
+    if (type) {
+      filters.type = type as "INITIAL" | "FOLLOW_UP" | "GROUP" | "HOSPITAL";
+    }
+    if (startDate) {
+      filters.startDate = new Date(startDate);
+    }
+    if (endDate) {
+      filters.endDate = new Date(endDate);
+    }
+
+    const consultations = await repository.listByOrganization(organizationId, filters);
+
+    return NextResponse.json({
+      consultations: consultations.map((c) => ({
+        ...c,
+        dateTime: c.dateTime.toISOString(),
+        createdAt: c.createdAt.toISOString(),
+        updatedAt: c.updatedAt.toISOString(),
+      })),
+    });
+  } catch (error) {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

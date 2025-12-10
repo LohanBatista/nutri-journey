@@ -11,6 +11,7 @@ import { ArrowLeft } from "lucide-react";
 import { ProgramSummaryTab } from "@/presentation/components/programs/ProgramSummaryTab";
 import { ProgramParticipantsTab } from "@/presentation/components/programs/ProgramParticipantsTab";
 import { ProgramMeetingsTab } from "@/presentation/components/programs/ProgramMeetingsTab";
+import { ProgramAiTab } from "@/presentation/components/programs/ProgramAiTab";
 
 function formatDate(date: Date | null | undefined): string {
   if (!date) return "N/A";
@@ -115,7 +116,6 @@ export default function ProgramDetailPage({
                 <TabsTrigger
                   value="ai"
                   className="data-[state=active]:bg-primary data-[state=active]:text-white text-slate-300"
-                  disabled
                 >
                   IA
                 </TabsTrigger>
@@ -134,13 +134,14 @@ export default function ProgramDetailPage({
               </TabsContent>
 
               <TabsContent value="ai" className="mt-0">
-                <Card className="bg-white/5 backdrop-blur-md border border-white/10">
-                  <CardContent className="p-6">
-                    <p className="text-slate-400 text-center py-8">
-                      Funcionalidade de IA será implementada na Fase 5
-                    </p>
-                  </CardContent>
-                </Card>
+                <ProgramAiTab
+                  programId={programId}
+                  meetings={(program.meetings || []).map((m) => ({
+                    id: m.id,
+                    date: typeof m.date === 'string' ? m.date : m.date.toISOString(),
+                    topic: m.topic,
+                  }))}
+                />
               </TabsContent>
             </Tabs>
           </CardContent>

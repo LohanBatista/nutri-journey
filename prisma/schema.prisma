@@ -34,6 +34,7 @@ model Professional {
   nutritionGeneralGuidances NutritionGeneralGuidance[]
   programProfessionals ProgramProfessional[]
   aiSummaries         AiSummary[]
+  aiNutritionDiagnosisSuggestions AiNutritionDiagnosisSuggestion[] @relation("ProfessionalNutritionDiagnoses")
 }
 
 model Patient {
@@ -57,6 +58,8 @@ model Patient {
   programParticipants ProgramParticipant[]
   programMeetingRecords ProgramMeetingRecord[]
   aiSummaries      AiSummary[]
+  aiNutritionDiagnosisSuggestions AiNutritionDiagnosisSuggestion[] @relation("PatientNutritionDiagnoses")
+  aiEducationMaterials AiEducationMaterial[] @relation("PatientEducationMaterials")
 }
 
 model Consultation {
@@ -76,6 +79,7 @@ model Consultation {
   plan              String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  aiNutritionDiagnosisSuggestions AiNutritionDiagnosisSuggestion[]
 }
 
 model AnthropometryRecord {
@@ -173,6 +177,8 @@ model Program {
   professionals ProgramProfessional[]
   participants  ProgramParticipant[]
   meetings      ProgramMeeting[]
+  aiEducationMaterials AiEducationMaterial[]
+  aiProgramSummaries AiProgramSummary[]
 }
 
 model ProgramProfessional {
@@ -213,6 +219,7 @@ model ProgramMeeting {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   records       ProgramMeetingRecord[]
+  aiProgramSummaries AiProgramSummary[]
 }
 
 model ProgramMeetingRecord {
@@ -245,5 +252,43 @@ model AiSummary {
   periodEnd         DateTime?
   textForProfessional String @db.Text
   createdAt         DateTime @default(now())
+}
+
+model AiNutritionDiagnosisSuggestion {
+  id              String   @id @default(uuid())
+  organizationId  String
+  patientId       String
+  patient         Patient  @relation("PatientNutritionDiagnoses", fields: [patientId], references: [id], onDelete: Cascade)
+  professionalId  String
+  professional    Professional @relation("ProfessionalNutritionDiagnoses", fields: [professionalId], references: [id], onDelete: Cascade)
+  consultationId  String?
+  consultation    Consultation? @relation(fields: [consultationId], references: [id], onDelete: SetNull)
+  diagnoses       String   @db.Text // JSON array serialized
+  createdAt       DateTime @default(now())
+}
+
+model AiEducationMaterial {
+  id              String   @id @default(uuid())
+  organizationId  String
+  patientId       String?
+  patient         Patient? @relation("PatientEducationMaterials", fields: [patientId], references: [id], onDelete: Cascade)
+  programId       String?
+  program         Program? @relation(fields: [programId], references: [id], onDelete: Cascade)
+  topic           String
+  context         String   // "INDIVIDUAL" | "GROUP"
+  text            String   @db.Text
+  createdAt       DateTime @default(now())
+}
+
+model AiProgramSummary {
+  id              String   @id @default(uuid())
+  organizationId  String
+  programId       String
+  program         Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  type            String   // "MEETING_SUMMARY" | "PROGRAM_OVERVIEW"
+  meetingId       String?
+  meeting         ProgramMeeting? @relation(fields: [meetingId], references: [id], onDelete: SetNull)
+  text            String   @db.Text
+  createdAt       DateTime @default(now())
 }
 
