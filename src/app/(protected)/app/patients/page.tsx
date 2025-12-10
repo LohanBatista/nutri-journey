@@ -52,10 +52,15 @@ export default function PatientsPage() {
 
   const handleSearch = (value: string): void => {
     setSearch(value);
-    setFilters((prev) => ({
-      ...prev,
-      search: value || undefined,
-    }));
+    setFilters((prev) => {
+      const newFilters = { ...prev };
+      if (value.trim()) {
+        newFilters.search = value;
+      } else {
+        delete newFilters.search;
+      }
+      return newFilters;
+    });
   };
 
   return (

@@ -89,10 +89,22 @@ export async function GET(request: NextRequest) {
     }
 
     const listPatientsUseCase = makeListPatientsUseCase();
-    const result = await listPatientsUseCase.execute({
+    const listInput: {
+      organizationId: string;
+      filters?: {
+        search?: string;
+        tags?: string[];
+        sex?: "MALE" | "FEMALE" | "OTHER";
+      };
+    } = {
       organizationId,
-      filters: Object.keys(filters).length > 0 ? filters : undefined,
-    });
+    };
+
+    if (Object.keys(filters).length > 0) {
+      listInput.filters = filters;
+    }
+
+    const result = await listPatientsUseCase.execute(listInput);
 
     return NextResponse.json(result);
   } catch (error) {

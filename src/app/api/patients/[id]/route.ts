@@ -31,21 +31,46 @@ export async function PATCH(
     }
 
     const updatePatientUseCase = makeUpdatePatientUseCase();
-    const result = await updatePatientUseCase.execute({
+    const updateInput: {
+      id: string;
+      organizationId: string;
+      fullName?: string;
+      dateOfBirth?: Date;
+      sex?: "MALE" | "FEMALE" | "OTHER";
+      phone?: string | null;
+      email?: string | null;
+      tags?: string[];
+      notes?: string | null;
+    } = {
       id,
       organizationId,
-      fullName: validatedData.fullName,
-      dateOfBirth: validatedData.dateOfBirth
-        ? validatedData.dateOfBirth instanceof Date
-          ? validatedData.dateOfBirth
-          : new Date(validatedData.dateOfBirth)
-        : undefined,
-      sex: validatedData.sex,
-      phone: validatedData.phone,
-      email: validatedData.email,
-      tags: validatedData.tags,
-      notes: validatedData.notes,
-    });
+    };
+
+    if (validatedData.fullName !== undefined) {
+      updateInput.fullName = validatedData.fullName;
+    }
+    if (validatedData.dateOfBirth !== undefined) {
+      updateInput.dateOfBirth = validatedData.dateOfBirth instanceof Date
+        ? validatedData.dateOfBirth
+        : new Date(validatedData.dateOfBirth);
+    }
+    if (validatedData.sex !== undefined) {
+      updateInput.sex = validatedData.sex;
+    }
+    if (validatedData.phone !== undefined) {
+      updateInput.phone = validatedData.phone;
+    }
+    if (validatedData.email !== undefined) {
+      updateInput.email = validatedData.email;
+    }
+    if (validatedData.tags !== undefined) {
+      updateInput.tags = validatedData.tags;
+    }
+    if (validatedData.notes !== undefined) {
+      updateInput.notes = validatedData.notes;
+    }
+
+    const result = await updatePatientUseCase.execute(updateInput);
 
     return NextResponse.json(result);
   } catch (error) {
