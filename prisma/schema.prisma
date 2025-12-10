@@ -14,6 +14,7 @@ model Organization {
   updatedAt DateTime @updatedAt
   professionals Professional[]
   patients     Patient[]
+  programs     Program[]
 }
 
 model Professional {
@@ -31,6 +32,7 @@ model Professional {
   labResults          LabResult[]
   nutritionPlans      NutritionPlan[]
   nutritionGeneralGuidances NutritionGeneralGuidance[]
+  programProfessionals ProgramProfessional[]
 }
 
 model Patient {
@@ -51,6 +53,8 @@ model Patient {
   labResults     LabResult[]
   nutritionPlans NutritionPlan[]
   nutritionGeneralGuidances NutritionGeneralGuidance[]
+  programParticipants ProgramParticipant[]
+  programMeetingRecords ProgramMeetingRecord[]
 }
 
 model Consultation {
@@ -151,5 +155,79 @@ model NutritionGeneralGuidance {
   notes                     String?
   createdAt                 DateTime @default(now())
   updatedAt                 DateTime @updatedAt
+}
+
+model Program {
+  id            String   @id @default(uuid())
+  organizationId String
+  organization  Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name          String
+  description   String
+  startDate     DateTime?
+  endDate       DateTime?
+  status        String   @default("PLANNED") // "PLANNED" | "ACTIVE" | "FINISHED"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  professionals ProgramProfessional[]
+  participants  ProgramParticipant[]
+  meetings      ProgramMeeting[]
+}
+
+model ProgramProfessional {
+  id            String   @id @default(uuid())
+  programId     String
+  program       Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  professionalId String
+  professional  Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  role          String   // "LEAD_NUTRITIONIST" | "NUTRITIONIST" | "OTHER"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([programId, professionalId])
+}
+
+model ProgramParticipant {
+  id            String   @id @default(uuid())
+  programId     String
+  program       Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  joinDate      DateTime @default(now())
+  leaveDate     DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([programId, patientId])
+}
+
+model ProgramMeeting {
+  id            String   @id @default(uuid())
+  programId     String
+  program       Program  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  date          DateTime
+  topic         String
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  records       ProgramMeetingRecord[]
+}
+
+model ProgramMeetingRecord {
+  id                    String   @id @default(uuid())
+  programMeetingId      String
+  programMeeting        ProgramMeeting @relation(fields: [programMeetingId], references: [id], onDelete: Cascade)
+  patientId             String
+  patient               Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  presence              Boolean  @default(false)
+  weightKg              Float?
+  bmi                   Float?
+  bloodPressureSystolic Float?
+  bloodPressureDiastolic Float?
+  notes                 String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@unique([programMeetingId, patientId])
 }
 
