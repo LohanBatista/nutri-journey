@@ -17,39 +17,90 @@ model Organization {
 }
 
 model Professional {
-  id             String   @id @default(uuid())
-  name           String
-  email          String   @unique
-  passwordHash   String
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  consultations  Consultation[]
+  id                  String   @id @default(uuid())
+  name                String
+  email               String   @unique
+  passwordHash        String
+  organizationId      String
+  organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  consultations       Consultation[]
+  anthropometryRecords AnthropometryRecord[]
+  labResults          LabResult[]
 }
 
 model Patient {
   id             String   @id @default(uuid())
-  name           String
+  fullName       String
+  dateOfBirth    DateTime
+  sex            String   // "MALE" | "FEMALE" | "OTHER"
   email          String?
   phone          String?
-  birthDate      DateTime?
+  tags           String[] @default([])
+  notes          String?
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   consultations  Consultation[]
+  anthropometryRecords AnthropometryRecord[]
+  labResults     LabResult[]
 }
 
 model Consultation {
-  id             String   @id @default(uuid())
-  patientId      String
-  patient        Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  professionalId String
-  professional   Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
-  date           DateTime
-  notes          String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                String   @id @default(uuid())
+  organizationId    String
+  patientId         String
+  patient           Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  professionalId    String
+  professional      Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  dateTime          DateTime
+  type              String   // "INITIAL" | "FOLLOW_UP" | "GROUP" | "HOSPITAL"
+  mainComplaint     String?
+  nutritionHistory  String?
+  clinicalHistory   String?
+  objectiveData     String?
+  nutritionDiagnosis String?
+  plan              String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model AnthropometryRecord {
+  id                  String   @id @default(uuid())
+  organizationId      String
+  patientId           String
+  patient             Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  professionalId      String
+  professional        Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  date                DateTime
+  weightKg            Float?
+  heightM             Float?
+  bmi                 Float?
+  waistCircumference  Float?
+  hipCircumference    Float?
+  armCircumference    Float?
+  notes               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model LabResult {
+  id              String   @id @default(uuid())
+  organizationId  String
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  professionalId  String
+  professional    Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  date            DateTime
+  testType        String   // "GLYCEMIA" | "HBA1C" | "CT" | "HDL" | "LDL" | "TG" | "OTHER"
+  name            String
+  value           String   // Armazenado como string para suportar números e strings
+  unit            String
+  referenceRange  String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 

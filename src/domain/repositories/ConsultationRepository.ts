@@ -1,14 +1,17 @@
 import type {
   Consultation,
-  ConsultationCreateInput,
-  ConsultationUpdateInput,
+  CreateConsultationInput,
+  UpdateConsultationInput,
+  ConsultationListFilters,
 } from "../entities/Consultation";
 
 export interface ConsultationRepository {
-  findById(id: string): Promise<Consultation | null>;
-  findByPatientId(patientId: string): Promise<Consultation[]>;
-  findByProfessionalId(professionalId: string): Promise<Consultation[]>;
-  create(data: ConsultationCreateInput): Promise<Consultation>;
-  update(id: string, data: ConsultationUpdateInput): Promise<Consultation>;
+  findById(id: string, organizationId: string): Promise<Consultation | null>;
+  listByOrganization(
+    organizationId: string,
+    filters?: ConsultationListFilters
+  ): Promise<Consultation[]>;
+  create(data: CreateConsultationInput): Promise<Consultation>;
+  update(id: string, data: UpdateConsultationInput): Promise<Consultation>;
   delete(id: string): Promise<void>;
 }

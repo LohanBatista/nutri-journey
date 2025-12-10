@@ -1,25 +1,42 @@
+export type PatientSex = "MALE" | "FEMALE" | "OTHER";
+
 export interface Patient {
   id: string;
-  name: string;
-  email: string | null;
-  phone: string | null;
-  birthDate: Date | null;
   organizationId: string;
+  fullName: string;
+  dateOfBirth: Date;
+  sex: PatientSex;
+  phone: string | null;
+  email: string | null;
+  tags: string[];
+  notes: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export interface PatientCreateInput {
-  name: string;
-  email?: string;
-  phone?: string;
-  birthDate?: Date;
+export interface CreatePatientInput {
   organizationId: string;
+  fullName: string;
+  dateOfBirth: Date;
+  sex: PatientSex;
+  phone?: string | null;
+  email?: string | null;
+  tags?: string[];
+  notes?: string | null;
 }
 
-export interface PatientUpdateInput {
-  name?: string;
-  email?: string;
-  phone?: string;
-  birthDate?: Date;
+export interface UpdatePatientInput {
+  fullName?: string;
+  dateOfBirth?: Date;
+  sex?: PatientSex;
+  phone?: string | null;
+  email?: string | null;
+  tags?: string[];
+  notes?: string | null;
+}
+
+export interface PatientListFilters {
+  search?: string;
+  tags?: string[];
+  sex?: PatientSex;
 }

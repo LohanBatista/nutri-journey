@@ -1,13 +1,17 @@
 import type {
   Patient,
-  PatientCreateInput,
-  PatientUpdateInput,
+  CreatePatientInput,
+  UpdatePatientInput,
+  PatientListFilters,
 } from "../entities/Patient";
 
 export interface PatientRepository {
-  findById(id: string): Promise<Patient | null>;
-  findByOrganizationId(organizationId: string): Promise<Patient[]>;
-  create(data: PatientCreateInput): Promise<Patient>;
-  update(id: string, data: PatientUpdateInput): Promise<Patient>;
+  findById(id: string, organizationId: string): Promise<Patient | null>;
+  listByOrganization(
+    organizationId: string,
+    filters?: PatientListFilters
+  ): Promise<Patient[]>;
+  create(data: CreatePatientInput): Promise<Patient>;
+  update(id: string, data: UpdatePatientInput): Promise<Patient>;
   delete(id: string): Promise<void>;
 }

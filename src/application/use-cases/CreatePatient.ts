@@ -1,12 +1,18 @@
-import type { Patient, PatientCreateInput } from "@/domain/entities/Patient";
+import type {
+  Patient,
+  CreatePatientInput as DomainCreatePatientInput,
+} from "@/domain/entities/Patient";
 import type { PatientRepository } from "@/domain/repositories/PatientRepository";
 
 export interface CreatePatientInput {
-  name: string;
-  email?: string;
-  phone?: string;
-  birthDate?: Date;
   organizationId: string;
+  fullName: string;
+  dateOfBirth: Date;
+  sex: "MALE" | "FEMALE" | "OTHER";
+  phone?: string | null;
+  email?: string | null;
+  tags?: string[];
+  notes?: string | null;
 }
 
 export interface CreatePatientOutput {
@@ -17,12 +23,15 @@ export class CreatePatientUseCase {
   constructor(private readonly patientRepository: PatientRepository) {}
 
   async execute(input: CreatePatientInput): Promise<CreatePatientOutput> {
-    const patientData: PatientCreateInput = {
-      name: input.name,
+    const patientData: DomainCreatePatientInput = {
       organizationId: input.organizationId,
-      ...(input.email !== undefined && { email: input.email }),
-      ...(input.phone !== undefined && { phone: input.phone }),
-      ...(input.birthDate !== undefined && { birthDate: input.birthDate }),
+      fullName: input.fullName,
+      dateOfBirth: input.dateOfBirth,
+      sex: input.sex,
+      phone: input.phone ?? null,
+      email: input.email ?? null,
+      tags: input.tags ?? [],
+      notes: input.notes ?? null,
     };
 
     const patient = await this.patientRepository.create(patientData);
