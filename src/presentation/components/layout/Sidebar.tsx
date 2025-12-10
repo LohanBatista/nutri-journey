@@ -12,6 +12,7 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  CheckSquare,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { cn } from "../../lib/utils";
@@ -21,6 +22,7 @@ const navigation = [
   { name: "Dashboard", href: "/app", icon: LayoutDashboard },
   { name: "Pacientes", href: "/app/patients", icon: Users },
   { name: "Programas", href: "/app/programs", icon: Calendar },
+  { name: "Tarefas", href: "/app/tasks", icon: CheckSquare },
   { name: "Relatórios", href: "/app/reports", icon: FileText },
   { name: "Configurações", href: "/app/settings", icon: Settings },
 ] as const;

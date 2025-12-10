@@ -11,6 +11,7 @@ import { PlansAndGuidanceTab } from "@/presentation/components/nutrition/PlansAn
 import { PatientProgramsTab } from "@/presentation/components/patients/PatientProgramsTab";
 import { PatientAiInsightsTab } from "@/presentation/components/ai/PatientAiInsightsTab";
 import { PatientConsultationsTab } from "@/presentation/components/patients/PatientConsultationsTab";
+import { PatientTasksPanel } from "@/presentation/components/patients/PatientTasksPanel";
 import { ArrowLeft, Calendar, Mail, Phone, Tag } from "lucide-react";
 
 function calculateAge(dateOfBirth: Date): number {
@@ -108,17 +109,19 @@ export default function PatientDetailPage({
         </motion.div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg">
-          <CardHeader>
-            <CardTitle className="text-white">Informações do Paciente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="lg:col-span-2"
+        >
+          <Card className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-white">Informações do Paciente</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Calendar className="w-5 h-5 text-slate-400" />
@@ -180,8 +183,18 @@ export default function PatientDetailPage({
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.15 }}
+        className="lg:col-span-1"
       >
+        <PatientTasksPanel patientId={patientId} />
+      </motion.div>
+    </div>
+
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+    >
         <Card className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg">
           <CardContent className="pt-6">
             <Tabs defaultValue="summary" className="w-full">
