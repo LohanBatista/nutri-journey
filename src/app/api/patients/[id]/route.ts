@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { makeUpdatePatientUseCase } from "@/application/factories/makeUpdatePatientUseCase";
+import { makeGetPatientUseCase } from "@/application/factories/makeGetPatientUseCase";
 
 const updatePatientSchema = z.object({
   fullName: z.string().min(1).optional(),
@@ -55,6 +56,41 @@ export async function PATCH(
       );
     }
 
+    if (error instanceof Error && error.message === "Patient not found") {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const { searchParams } = new URL(request.url);
+    const organizationId = searchParams.get("organizationId");
+
+    if (!organizationId) {
+      return NextResponse.json(
+        { error: "organizationId is required" },
+        { status: 400 }
+      );
+    }
+
+    const getPatientUseCase = makeGetPatientUseCase();
+    const result = await getPatientUseCase.execute({
+      id,
+      organizationId,
+    });
+
+    return NextResponse.json(result);
+  } catch (error) {
     if (error instanceof Error && error.message === "Patient not found") {
       return NextResponse.json({ error: error.message }, { status: 404 });
     }
