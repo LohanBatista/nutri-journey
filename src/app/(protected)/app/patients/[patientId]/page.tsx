@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/presentation/compone
 import { usePatient } from "@/presentation/patients/hooks/usePatient";
 import { PlansAndGuidanceTab } from "@/presentation/components/nutrition/PlansAndGuidanceTab";
 import { PatientProgramsTab } from "@/presentation/components/patients/PatientProgramsTab";
+import { PatientAiInsightsTab } from "@/presentation/components/ai/PatientAiInsightsTab";
 import { ArrowLeft, Calendar, Mail, Phone, Tag } from "lucide-react";
 
 function calculateAge(dateOfBirth: Date): number {
@@ -275,9 +276,7 @@ export default function PatientDetailPage({
               </TabsContent>
 
               <TabsContent value="insights" className="space-y-4">
-                <div className="text-slate-400">
-                  <p>Insights de IA serão implementados nas Fases 4/5.</p>
-                </div>
+                <PatientAiInsightsTab patientId={patientId} />
               </TabsContent>
             </Tabs>
           </CardContent>
