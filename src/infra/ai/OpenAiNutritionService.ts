@@ -46,13 +46,29 @@ DADOS DO PACIENTE:
   if (recentAnthropometry) {
     prompt += `ANTROPOMETRIA (${formatDate(recentAnthropometry.date)}):\n`;
     if (recentAnthropometry.weightKg !== null) {
-      prompt += `- Peso: ${recentAnthropometry.weightKg} kg\n`;
+      prompt += `- Peso: ${recentAnthropometry.weightKg} kg`;
+      if (recentAnthropometry.previousWeightKg !== null) {
+        const weightChange = recentAnthropometry.weightKg - recentAnthropometry.previousWeightKg;
+        prompt += ` (Variação: ${weightChange > 0 ? "+" : ""}${weightChange.toFixed(1)} kg)`;
+      }
+      prompt += `\n`;
     }
     if (recentAnthropometry.bmi !== null) {
-      prompt += `- IMC: ${recentAnthropometry.bmi.toFixed(1)}\n`;
+      prompt += `- IMC: ${recentAnthropometry.bmi.toFixed(1)}`;
+      if (recentAnthropometry.previousBmi !== null) {
+        const bmiChange = recentAnthropometry.bmi - recentAnthropometry.previousBmi;
+        prompt += ` (Variação: ${bmiChange > 0 ? "+" : ""}${bmiChange.toFixed(1)})`;
+      }
+      prompt += `\n`;
     }
     if (recentAnthropometry.waistCircumference !== null) {
       prompt += `- Circunferência da Cintura: ${recentAnthropometry.waistCircumference} cm\n`;
+    }
+    if (recentAnthropometry.hipCircumference !== null) {
+      prompt += `- Circunferência do Quadril: ${recentAnthropometry.hipCircumference} cm\n`;
+    }
+    if (recentAnthropometry.armCircumference !== null) {
+      prompt += `- Circunferência do Braço: ${recentAnthropometry.armCircumference} cm\n`;
     }
     prompt += "\n";
   } else {
@@ -61,12 +77,36 @@ DADOS DO PACIENTE:
 
   if (mainLabResults.length > 0) {
     prompt += "EXAMES LABORATORIAIS PRINCIPAIS:\n";
+    // Agrupar por tipo de exame para facilitar análise
+    const groupedByType: Record<string, typeof mainLabResults> = {};
     mainLabResults.forEach((result) => {
-      prompt += `- ${formatDate(result.date)} - ${result.name}: ${result.value} ${result.unit}`;
-      if (result.referenceRange) {
-        prompt += ` (Referência: ${result.referenceRange})`;
+      const type = result.testType;
+      if (!groupedByType[type]) {
+        groupedByType[type] = [];
       }
-      prompt += "\n";
+      groupedByType[type].push(result);
+    });
+    
+    // Priorizar tipos importantes
+    const priorityTypes = ["HBA1C", "GLYCEMIA", "CT", "HDL", "LDL", "TG"];
+    const otherTypes = Object.keys(groupedByType).filter(t => !priorityTypes.includes(t));
+    const orderedTypes = [...priorityTypes.filter(t => groupedByType[t] && groupedByType[t].length > 0), ...otherTypes];
+    
+    orderedTypes.forEach((type) => {
+      const results = groupedByType[type];
+      results.forEach((result) => {
+        const typeLabel = type === "HBA1C" ? "HbA1c" : 
+                         type === "CT" ? "Colesterol Total" :
+                         type === "GLYCEMIA" ? "Glicemia" :
+                         type === "HDL" ? "HDL" :
+                         type === "LDL" ? "LDL" :
+                         type === "TG" ? "Triglicerídeos" : type;
+        prompt += `- ${formatDate(result.date)} - ${typeLabel} (${result.name}): ${result.value} ${result.unit}`;
+        if (result.referenceRange) {
+          prompt += ` (Referência: ${result.referenceRange})`;
+        }
+        prompt += "\n";
+      });
     });
     prompt += "\n";
   } else {
@@ -79,13 +119,15 @@ DADOS DO PACIENTE:
     prompt += "PADRÃO ALIMENTAR: Informações não disponíveis\n\n";
   }
 
-  prompt += `Gere sugestões de diagnósticos nutricionais seguindo o formato JSON abaixo. Retorne APENAS um array JSON válido, sem markdown ou texto adicional:
+  prompt += `IMPORTANTE: Use TODOS os dados fornecidos (antropometria, exames laboratoriais, padrão alimentar) para gerar diagnósticos nutricionais precisos e baseados em evidências. Se houver dados de antropometria ou exames, eles devem ser PRIORITÁRIOS na análise e justificativa dos diagnósticos.
+
+Gere sugestões de diagnósticos nutricionais seguindo o formato JSON abaixo. Retorne APENAS um array JSON válido, sem markdown ou texto adicional:
 
 [
   {
     "title": "Título do diagnóstico nutricional (conforme NANDA)",
     "pesFormat": "Problema relacionado a [etiologia] evidenciado por [sinais/sintomas]",
-    "rationale": "Justificativa baseada nos dados fornecidos"
+    "rationale": "Justificativa baseada nos dados fornecidos, especialmente antropometria e exames laboratoriais quando disponíveis"
   }
 ]`;
 

@@ -4,11 +4,11 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/presentation/components/ui/card";
 import { Button } from "@/presentation/components/ui/button";
-import { Input } from "@/presentation/components/ui/input";
 import { useTasks } from "@/presentation/tasks/hooks";
 import { useSessionStore } from "@/presentation/stores/session-store";
 import { Plus, CheckCircle2, Circle, Clock, Calendar } from "lucide-react";
 import type { TaskStatus } from "@/domain/entities/Task";
+import { CreateTaskModal } from "@/presentation/components/tasks/CreateTaskModal";
 
 function formatDate(date: string | Date | null | undefined): string {
   if (!date) return "Sem data";
@@ -103,7 +103,7 @@ export default function TasksPage() {
     title: string;
     description?: string;
     dueDate?: string;
-    patientId?: string;
+    patientId?: string | null;
     programId?: string;
   }) => {
     if (!professional || !organization) return;
@@ -275,38 +275,40 @@ export default function TasksPage() {
                       </div>
                     )}
 
-                    <div className="flex gap-2 mt-4">
-                      {task.status !== "PENDING" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleStatusChange(task.id, "PENDING")}
-                          className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-                        >
-                          Pendente
-                        </Button>
-                      )}
-                      {task.status !== "IN_PROGRESS" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleStatusChange(task.id, "IN_PROGRESS")}
-                          className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-                        >
-                          Em Progresso
-                        </Button>
-                      )}
-                      {task.status !== "DONE" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleStatusChange(task.id, "DONE")}
-                          className="bg-white/5 border-white/10 text-white hover:bg-white/10"
-                        >
-                          Concluir
-                        </Button>
-                      )}
-                    </div>
+                    {task.status !== "DONE" && (
+                      <div className="flex gap-2 mt-4">
+                        {task.status !== "PENDING" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleStatusChange(task.id, "PENDING")}
+                            className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+                          >
+                            Pendente
+                          </Button>
+                        )}
+                        {task.status !== "IN_PROGRESS" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleStatusChange(task.id, "IN_PROGRESS")}
+                            className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+                          >
+                            Em Progresso
+                          </Button>
+                        )}
+                        {task.status !== "DONE" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleStatusChange(task.id, "DONE")}
+                            className="bg-white/5 border-white/10 text-white hover:bg-white/10"
+                          >
+                            Concluir
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </motion.div>
                 ))}
               </div>
@@ -321,112 +323,6 @@ export default function TasksPage() {
           onCreate={handleCreateTask}
         />
       )}
-    </div>
-  );
-}
-
-function CreateTaskModal({
-  onClose,
-  onCreate,
-}: {
-  onClose: () => void;
-  onCreate: (data: {
-    title: string;
-    description?: string;
-    dueDate?: string;
-    patientId?: string;
-    programId?: string;
-  }) => void;
-}) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [dueDate, setDueDate] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) return;
-
-    const data: {
-      title: string;
-      description?: string;
-      dueDate?: string;
-    } = {
-      title: title.trim(),
-    };
-
-    const trimmedDescription = description.trim();
-    if (trimmedDescription) {
-      data.description = trimmedDescription;
-    }
-
-    if (dueDate) {
-      data.dueDate = dueDate;
-    }
-
-    onCreate(data);
-
-    setTitle("");
-    setDescription("");
-    setDueDate("");
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 max-w-md w-full"
-      >
-        <h2 className="text-2xl font-bold text-white mb-4">Nova Tarefa</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Título *
-            </label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Descrição
-            </label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white resize-none"
-              rows={3}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">
-              Data de Vencimento
-            </label>
-            <Input
-              type="datetime-local"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-              className="bg-white/5 border-white/10 text-white"
-            />
-          </div>
-          <div className="flex gap-2 justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="bg-white/5 border-white/10 text-white"
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" className="bg-primary hover:bg-primary/90 text-white">
-              Criar
-            </Button>
-          </div>
-        </form>
-      </motion.div>
     </div>
   );
 }

@@ -67,10 +67,15 @@ export interface GenerateNutritionDiagnosisInput {
     weightKg: number | null;
     bmi: number | null;
     waistCircumference: number | null;
+    hipCircumference: number | null;
+    armCircumference: number | null;
+    previousWeightKg: number | null;
+    previousBmi: number | null;
   } | null;
   mainLabResults: {
     date: Date;
     name: string;
+    testType: "GLYCEMIA" | "HBA1C" | "CT" | "HDL" | "LDL" | "TG" | "OTHER";
     value: string;
     unit: string;
     referenceRange: string | null;

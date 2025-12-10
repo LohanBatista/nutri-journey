@@ -19,10 +19,6 @@ export function usePatientNutritionReport(
 
   const generateReport =
     async (): Promise<GeneratePatientNutritionReportOutput> => {
-      if (!organization) {
-        throw new Error("Organização não encontrada");
-      }
-
       if (!patientId) {
         throw new Error("ID do paciente não fornecido");
       }
@@ -32,7 +28,7 @@ export function usePatientNutritionReport(
         setError(null);
 
         const response = await fetch(
-          `/api/patients/${patientId}/nutrition-report?organizationId=${organization.id}`
+          `/api/patients/${patientId}/nutrition-report`
         );
 
         if (!response.ok) {

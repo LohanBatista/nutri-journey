@@ -74,23 +74,29 @@ export class GenerateNutritionDiagnosisSuggestionsUseCase {
       throw new Error("Paciente não encontrado");
     }
 
-    // Buscar antropometria mais recente
+    // Buscar antropometria mais recente e anterior para comparação
     const anthropometryRecords = await this.anthropometryRepository.listByPatient(
       input.patientId,
       input.organizationId
     );
 
     const mostRecentRecord = anthropometryRecords[0];
+    const previousRecord = anthropometryRecords[1] || null;
+    
     const recentAnthropometry = mostRecentRecord
       ? {
           date: mostRecentRecord.date,
           weightKg: mostRecentRecord.weightKg,
           bmi: mostRecentRecord.bmi,
           waistCircumference: mostRecentRecord.waistCircumference,
+          hipCircumference: mostRecentRecord.hipCircumference,
+          armCircumference: mostRecentRecord.armCircumference,
+          previousWeightKg: previousRecord?.weightKg ?? null,
+          previousBmi: previousRecord?.bmi ?? null,
         }
       : null;
 
-    // Buscar exames principais (últimos 6 meses ou mais recentes)
+    // Buscar exames principais (priorizar últimos 6 meses, mas incluir todos se necessário)
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
@@ -99,16 +105,21 @@ export class GenerateNutritionDiagnosisSuggestionsUseCase {
       input.organizationId
     );
 
-    const recentLabResults = allLabResults
-      .filter((r) => new Date(r.date) >= sixMonthsAgo)
-      .slice(0, 10) // Limitar a 10 exames mais recentes
-      .map((r) => ({
-        date: r.date,
-        name: r.name,
-        value: String(r.value), // Converter para string
-        unit: r.unit,
-        referenceRange: r.referenceRange,
-      }));
+    // Priorizar exames dos últimos 6 meses, mas se não houver, pegar os mais recentes disponíveis
+    const recentLabResults = allLabResults.length > 0
+      ? (allLabResults.filter((r) => new Date(r.date) >= sixMonthsAgo).length > 0
+          ? allLabResults.filter((r) => new Date(r.date) >= sixMonthsAgo)
+          : allLabResults)
+          .slice(0, 15) // Aumentar para 15 exames mais relevantes
+          .map((r) => ({
+            date: r.date,
+            name: r.name,
+            testType: r.testType,
+            value: String(r.value), // Converter para string
+            unit: r.unit,
+            referenceRange: r.referenceRange,
+          }))
+      : [];
 
     // Buscar consultas para resumo de padrão alimentar
     const consultations = await this.consultationRepository.listByOrganization(

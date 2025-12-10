@@ -11,6 +11,9 @@ import { PlansAndGuidanceTab } from "@/presentation/components/nutrition/PlansAn
 import { PatientProgramsTab } from "@/presentation/components/patients/PatientProgramsTab";
 import { PatientAiInsightsTab } from "@/presentation/components/ai/PatientAiInsightsTab";
 import { PatientConsultationsTab } from "@/presentation/components/patients/PatientConsultationsTab";
+import { PatientAnthropometryTab } from "@/presentation/components/patients/PatientAnthropometryTab";
+import { PatientLabResultsTab } from "@/presentation/components/patients/PatientLabResultsTab";
+import { PatientSummaryTab } from "@/presentation/components/patients/PatientSummaryTab";
 import { PatientTasksPanel } from "@/presentation/components/patients/PatientTasksPanel";
 import { ArrowLeft, Calendar, Mail, Phone, Tag } from "lucide-react";
 
@@ -244,23 +247,7 @@ export default function PatientDetailPage({
               </TabsList>
 
               <TabsContent value="summary" className="space-y-4">
-                <div className="text-slate-400">
-                  <p className="mb-4">Últimos registros do paciente:</p>
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                      <p className="text-sm text-slate-400 mb-2">Última Antropometria</p>
-                      <p className="text-white">Nenhum registro encontrado</p>
-                    </div>
-                    <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                      <p className="text-sm text-slate-400 mb-2">Últimos Exames</p>
-                      <p className="text-white">Nenhum exame encontrado</p>
-                    </div>
-                    <div className="p-4 rounded-lg bg-white/5 border border-white/10">
-                      <p className="text-sm text-slate-400 mb-2">Últimas Consultas</p>
-                      <p className="text-white">Nenhuma consulta encontrada</p>
-                    </div>
-                  </div>
-                </div>
+                <PatientSummaryTab patientId={patientId} />
               </TabsContent>
 
               <TabsContent value="consultations" className="space-y-4">
@@ -268,15 +255,11 @@ export default function PatientDetailPage({
               </TabsContent>
 
               <TabsContent value="anthropometry" className="space-y-4">
-                <div className="text-slate-400">
-                  <p>Registros de antropometria serão implementados em breve.</p>
-                </div>
+                <PatientAnthropometryTab patientId={patientId} />
               </TabsContent>
 
               <TabsContent value="lab-results" className="space-y-4">
-                <div className="text-slate-400">
-                  <p>Resultados de exames serão implementados em breve.</p>
-                </div>
+                <PatientLabResultsTab patientId={patientId} />
               </TabsContent>
 
               <TabsContent value="plans" className="space-y-4">

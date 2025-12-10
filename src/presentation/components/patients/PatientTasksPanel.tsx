@@ -1,11 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/presentation/components/ui/card";
 import { Button } from "@/presentation/components/ui/button";
 import { useTasks } from "@/presentation/tasks/hooks";
-import { CheckCircle2, Circle, Clock, Calendar } from "lucide-react";
+import { useSessionStore } from "@/presentation/stores/session-store";
+import { usePatient } from "@/presentation/patients/hooks/usePatient";
+import { CheckCircle2, Circle, Clock, Calendar, Plus } from "lucide-react";
 import type { TaskStatus } from "@/domain/entities/Task";
+import { CreateTaskModal } from "@/presentation/components/tasks/CreateTaskModal";
 
 interface PatientTasksPanelProps {
   patientId: string;
@@ -38,9 +42,12 @@ function getStatusIcon(status: TaskStatus) {
 }
 
 export function PatientTasksPanel({ patientId }: PatientTasksPanelProps) {
+  const { organization, professional } = useSessionStore();
+  const { patient } = usePatient(patientId);
   const { tasks, loading, error, refetch } = useTasks({
     patientId,
   });
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const handleStatusChange = async (taskId: string, newStatus: TaskStatus) => {
     try {
@@ -57,6 +64,41 @@ export function PatientTasksPanel({ patientId }: PatientTasksPanelProps) {
       await refetch();
     } catch (err) {
       console.error("Erro ao atualizar status:", err);
+    }
+  };
+
+  const handleCreateTask = async (data: {
+    title: string;
+    description?: string;
+    dueDate?: string;
+    patientId?: string | null;
+    programId?: string;
+  }) => {
+    if (!professional || !organization) return;
+
+    try {
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          organizationId: organization.id,
+          professionalId: professional.id,
+          title: data.title,
+          description: data.description || null,
+          dueDate: data.dueDate || null,
+          patientId: data.patientId || null,
+          programId: data.programId || null,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao criar tarefa");
+      }
+
+      setShowCreateModal(false);
+      await refetch();
+    } catch (err) {
+      console.error("Erro ao criar tarefa:", err);
     }
   };
 
@@ -87,16 +129,27 @@ export function PatientTasksPanel({ patientId }: PatientTasksPanelProps) {
   }
 
   return (
-    <Card className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg">
-      <CardHeader>
-        <CardTitle className="text-white">Tarefas Relacionadas</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {tasks.length === 0 ? (
-          <div className="text-center py-4 text-slate-400">
-            Nenhuma tarefa encontrada para este paciente.
+    <>
+      <Card className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl shadow-lg">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-white">Tarefas Relacionadas</CardTitle>
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              size="sm"
+              className="bg-primary hover:bg-primary/90 text-white h-8 px-3"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Nova Tarefa
+            </Button>
           </div>
-        ) : (
+        </CardHeader>
+        <CardContent>
+          {tasks.length === 0 ? (
+            <div className="text-center py-4 text-slate-400">
+              Nenhuma tarefa encontrada para este paciente.
+            </div>
+          ) : (
           <div className="space-y-3">
             {tasks.map((task, index) => (
               <motion.div
@@ -130,44 +183,56 @@ export function PatientTasksPanel({ patientId }: PatientTasksPanelProps) {
                   </div>
                 )}
 
-                <div className="flex gap-2 mt-2">
-                  {task.status !== "PENDING" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleStatusChange(task.id, "PENDING")}
-                      className="bg-white/5 border-white/10 text-white hover:bg-white/10 text-xs h-7"
-                    >
-                      Pendente
-                    </Button>
-                  )}
-                  {task.status !== "IN_PROGRESS" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleStatusChange(task.id, "IN_PROGRESS")}
-                      className="bg-white/5 border-white/10 text-white hover:bg-white/10 text-xs h-7"
-                    >
-                      Em Progresso
-                    </Button>
-                  )}
-                  {task.status !== "DONE" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleStatusChange(task.id, "DONE")}
-                      className="bg-white/5 border-white/10 text-white hover:bg-white/10 text-xs h-7"
-                    >
-                      Concluir
-                    </Button>
-                  )}
-                </div>
+                {task.status !== "DONE" && (
+                  <div className="flex gap-2 mt-2">
+                    {task.status !== "PENDING" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleStatusChange(task.id, "PENDING")}
+                        className="bg-white/5 border-white/10 text-white hover:bg-white/10 text-xs h-7"
+                      >
+                        Pendente
+                      </Button>
+                    )}
+                    {task.status !== "IN_PROGRESS" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleStatusChange(task.id, "IN_PROGRESS")}
+                        className="bg-white/5 border-white/10 text-white hover:bg-white/10 text-xs h-7"
+                      >
+                        Em Progresso
+                      </Button>
+                    )}
+                    {task.status !== "DONE" && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleStatusChange(task.id, "DONE")}
+                        className="bg-white/5 border-white/10 text-white hover:bg-white/10 text-xs h-7"
+                      >
+                        Concluir
+                      </Button>
+                    )}
+                  </div>
+                )}
               </motion.div>
             ))}
           </div>
         )}
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      {showCreateModal && (
+        <CreateTaskModal
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateTask}
+          patientId={patientId}
+          patientName={patient?.fullName}
+        />
+      )}
+    </>
   );
 }
 
