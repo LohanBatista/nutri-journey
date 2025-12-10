@@ -88,7 +88,7 @@ export default function NewPatientPage() {
         sex: formData.sex,
         phone: formData.phone || null,
         email: formData.email || null,
-        tags: tags.length > 0 ? tags : undefined,
+        ...(tags.length > 0 && { tags }),
         notes: formData.notes || null,
       });
 
