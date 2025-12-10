@@ -20,7 +20,16 @@ export async function POST(request: NextRequest) {
     const validatedData = createPatientSchema.parse(body);
 
     const createPatientUseCase = makeCreatePatientUseCase();
-    const result = await createPatientUseCase.execute({
+    const createInput: {
+      organizationId: string;
+      fullName: string;
+      dateOfBirth: Date;
+      sex: "MALE" | "FEMALE" | "OTHER";
+      phone?: string | null;
+      email?: string | null;
+      tags?: string[];
+      notes?: string | null;
+    } = {
       organizationId: validatedData.organizationId,
       fullName: validatedData.fullName,
       dateOfBirth:
@@ -30,9 +39,14 @@ export async function POST(request: NextRequest) {
       sex: validatedData.sex,
       phone: validatedData.phone ?? null,
       email: validatedData.email ?? null,
-      tags: validatedData.tags,
       notes: validatedData.notes ?? null,
-    });
+    };
+
+    if (validatedData.tags !== undefined) {
+      createInput.tags = validatedData.tags;
+    }
+
+    const result = await createPatientUseCase.execute(createInput);
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
