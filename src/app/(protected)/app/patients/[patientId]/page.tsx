@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/presentation/compone
 import { Button } from "@/presentation/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/presentation/components/ui/tabs";
 import { usePatient } from "@/presentation/patients/hooks/usePatient";
+import { PlansAndGuidanceTab } from "@/presentation/components/nutrition/PlansAndGuidanceTab";
 import { ArrowLeft, Calendar, Mail, Phone, Tag } from "lucide-react";
 
 function calculateAge(dateOfBirth: Date): number {
@@ -265,9 +266,7 @@ export default function PatientDetailPage({
               </TabsContent>
 
               <TabsContent value="plans" className="space-y-4">
-                <div className="text-slate-400">
-                  <p>Planos e condutas serão implementados na Fase 2.</p>
-                </div>
+                <PlansAndGuidanceTab patientId={patientId} />
               </TabsContent>
 
               <TabsContent value="programs" className="space-y-4">

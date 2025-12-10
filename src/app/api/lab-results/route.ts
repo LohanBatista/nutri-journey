@@ -33,8 +33,8 @@ export async function POST(request: NextRequest) {
       name: validatedData.name,
       value: validatedData.value,
       unit: validatedData.unit,
-      referenceRange: validatedData.referenceRange ?? null,
-      notes: validatedData.notes ?? null,
+      ...(validatedData.referenceRange !== undefined && { referenceRange: validatedData.referenceRange }),
+      ...(validatedData.notes !== undefined && { notes: validatedData.notes }),
     });
 
     return NextResponse.json(result, { status: 201 });

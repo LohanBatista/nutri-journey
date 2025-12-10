@@ -31,12 +31,12 @@ export async function POST(request: NextRequest) {
           ? validatedData.dateTime
           : new Date(validatedData.dateTime),
       type: validatedData.type,
-      mainComplaint: validatedData.mainComplaint ?? null,
-      nutritionHistory: validatedData.nutritionHistory ?? null,
-      clinicalHistory: validatedData.clinicalHistory ?? null,
-      objectiveData: validatedData.objectiveData ?? null,
-      nutritionDiagnosis: validatedData.nutritionDiagnosis ?? null,
-      plan: validatedData.plan ?? null,
+      ...(validatedData.mainComplaint !== undefined && { mainComplaint: validatedData.mainComplaint }),
+      ...(validatedData.nutritionHistory !== undefined && { nutritionHistory: validatedData.nutritionHistory }),
+      ...(validatedData.clinicalHistory !== undefined && { clinicalHistory: validatedData.clinicalHistory }),
+      ...(validatedData.objectiveData !== undefined && { objectiveData: validatedData.objectiveData }),
+      ...(validatedData.nutritionDiagnosis !== undefined && { nutritionDiagnosis: validatedData.nutritionDiagnosis }),
+      ...(validatedData.plan !== undefined && { plan: validatedData.plan }),
     });
 
     return NextResponse.json(result, { status: 201 });

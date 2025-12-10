@@ -15,10 +15,10 @@ const updatePatientSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { patientId } = await params;
     const body = await request.json();
     const validatedData = updatePatientSchema.parse(body);
 
@@ -42,7 +42,7 @@ export async function PATCH(
       tags?: string[];
       notes?: string | null;
     } = {
-      id,
+      id: patientId,
       organizationId,
     };
 
@@ -94,10 +94,10 @@ export async function PATCH(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ patientId: string }> }
 ) {
   try {
-    const { id } = await params;
+    const { patientId } = await params;
     const { searchParams } = new URL(request.url);
     const organizationId = searchParams.get("organizationId");
 
@@ -110,7 +110,7 @@ export async function GET(
 
     const getPatientUseCase = makeGetPatientUseCase();
     const result = await getPatientUseCase.execute({
-      id,
+      id: patientId,
       organizationId,
     });
 

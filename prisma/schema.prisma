@@ -29,6 +29,8 @@ model Professional {
   consultations       Consultation[]
   anthropometryRecords AnthropometryRecord[]
   labResults          LabResult[]
+  nutritionPlans      NutritionPlan[]
+  nutritionGeneralGuidances NutritionGeneralGuidance[]
 }
 
 model Patient {
@@ -47,6 +49,8 @@ model Patient {
   consultations  Consultation[]
   anthropometryRecords AnthropometryRecord[]
   labResults     LabResult[]
+  nutritionPlans NutritionPlan[]
+  nutritionGeneralGuidances NutritionGeneralGuidance[]
 }
 
 model Consultation {
@@ -103,5 +107,49 @@ model LabResult {
   notes           String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model NutritionPlan {
+  id            String   @id @default(uuid())
+  organizationId String
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  professionalId String
+  professional  Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  title         String
+  goals         String
+  notes         String?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  meals         NutritionPlanMeal[]
+}
+
+model NutritionPlanMeal {
+  id              String   @id @default(uuid())
+  nutritionPlanId String
+  nutritionPlan  NutritionPlan @relation(fields: [nutritionPlanId], references: [id], onDelete: Cascade)
+  mealType        String   // "BREAKFAST" | "MORNING_SNACK" | "LUNCH" | "AFTERNOON_SNACK" | "DINNER" | "SUPPER" | "OTHER"
+  description     String
+  observation     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model NutritionGeneralGuidance {
+  id                        String   @id @default(uuid())
+  organizationId            String
+  patientId                 String
+  patient                   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  professionalId            String
+  professional              Professional @relation(fields: [professionalId], references: [id], onDelete: Cascade)
+  date                      DateTime
+  hydrationGuidance         String?
+  physicalActivityGuidance  String?
+  sleepGuidance             String?
+  symptomManagementGuidance String?
+  notes                     String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 

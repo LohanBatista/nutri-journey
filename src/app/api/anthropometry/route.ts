@@ -31,13 +31,13 @@ export async function POST(request: NextRequest) {
         validatedData.date instanceof Date
           ? validatedData.date
           : new Date(validatedData.date),
-      weightKg: validatedData.weightKg ?? null,
-      heightM: validatedData.heightM ?? null,
-      bmi: validatedData.bmi ?? null,
-      waistCircumference: validatedData.waistCircumference ?? null,
-      hipCircumference: validatedData.hipCircumference ?? null,
-      armCircumference: validatedData.armCircumference ?? null,
-      notes: validatedData.notes ?? null,
+      ...(validatedData.weightKg !== undefined && { weightKg: validatedData.weightKg }),
+      ...(validatedData.heightM !== undefined && { heightM: validatedData.heightM }),
+      ...(validatedData.bmi !== undefined && { bmi: validatedData.bmi }),
+      ...(validatedData.waistCircumference !== undefined && { waistCircumference: validatedData.waistCircumference }),
+      ...(validatedData.hipCircumference !== undefined && { hipCircumference: validatedData.hipCircumference }),
+      ...(validatedData.armCircumference !== undefined && { armCircumference: validatedData.armCircumference }),
+      ...(validatedData.notes !== undefined && { notes: validatedData.notes }),
     });
 
     return NextResponse.json(result, { status: 201 });
