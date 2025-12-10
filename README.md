@@ -825,23 +825,39 @@ npm install
 Crie um arquivo `.env` na raiz:
 
 ```env
-DATABASE_URL="postgresql://user:password@host:port/database?sslmode=require"
+# URL de conexão do Neon Postgres (obtenha no dashboard do Neon)
+DATABASE_URL="postgresql://user:password@host.neon.tech/database?sslmode=require"
 NEXTAUTH_SECRET="seu-secret-aqui-minimo-32-caracteres"
 NEXTAUTH_URL="http://localhost:3000"
 ```
 
+**Importante:**
+- A `DATABASE_URL` deve apontar para seu banco **Neon Postgres**
+- Em produção (Vercel), configure a mesma variável nas Environment Variables
+- O Prisma usa automaticamente `DATABASE_URL` do ambiente
+
 ### 3. Configurar Banco de Dados
+
+**Importante:** O projeto está configurado para usar **Neon Postgres** (banco PostgreSQL serverless). Certifique-se de que a variável `DATABASE_URL` no `.env.local` aponta para seu banco Neon.
 
 ```bash
 # Gerar Prisma Client
 npm run db:generate
 
-# Sincronizar schema com o banco (desenvolvimento)
+# Para desenvolvimento (sincroniza schema diretamente)
 npm run db:push
 
-# Ou criar migration (produção)
+# Para criar uma nova migration (desenvolvimento)
 npm run db:migrate
+
+# Para aplicar migrations em produção (Neon/Vercel)
+npm run db:migrate:deploy
 ```
+
+**Nota sobre Migrations:**
+- Use `db:push` apenas em desenvolvimento local
+- Use `db:migrate` para criar novas migrations
+- Use `db:migrate:deploy` para aplicar migrations em produção (Vercel, Neon, etc.)
 
 ### 4. Executar Projeto
 
@@ -855,16 +871,17 @@ Acesse: `http://localhost:3000`
 
 ## 📝 Scripts Disponíveis
 
-| Script                | Descrição                          |
-| --------------------- | ---------------------------------- |
-| `npm run dev`         | Inicia servidor de desenvolvimento |
-| `npm run build`       | Build para produção                |
-| `npm run start`       | Inicia servidor de produção        |
-| `npm run lint`        | Executa ESLint                     |
-| `npm run db:generate` | Gera Prisma Client                 |
-| `npm run db:push`     | Sincroniza schema (dev)            |
-| `npm run db:migrate`  | Cria migration (prod)              |
-| `npm run db:studio`   | Abre Prisma Studio                 |
+| Script                    | Descrição                                    |
+| ------------------------- | -------------------------------------------- |
+| `npm run dev`             | Inicia servidor de desenvolvimento           |
+| `npm run build`           | Build para produção                          |
+| `npm run start`           | Inicia servidor de produção                  |
+| `npm run lint`            | Executa ESLint                               |
+| `npm run db:generate`     | Gera Prisma Client                           |
+| `npm run db:push`         | Sincroniza schema (apenas desenvolvimento)   |
+| `npm run db:migrate`      | Cria nova migration (desenvolvimento)        |
+| `npm run db:migrate:deploy` | Aplica migrations em produção (Neon/Vercel) |
+| `npm run db:studio`       | Abre Prisma Studio                           |
 
 ---
 

@@ -1,5 +1,8 @@
 import NextAuth from "next-auth";
 import type { NextAuthConfig } from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { makeAuthenticateProfessionalUseCase } from "@/application/factories/makeAuthenticateProfessionalUseCase";
+import type { ProfessionalWithoutPassword } from "@/domain/entities/ProfessionalWithoutPassword";
 
 // Garantir que o secret esteja definido
 const secret = process.env.NEXTAUTH_SECRET;
@@ -33,8 +36,58 @@ export const authConfig: NextAuthConfig = {
       
       return true;
     },
+    async jwt({ token, user }) {
+      if (user) {
+        token.professional = user.professional;
+        token.organization = user.organization;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token.professional && token.organization) {
+        session.professional = token.professional;
+        session.organization = token.organization;
+      }
+      return session;
+    },
   },
-  providers: [],
+  providers: [
+    Credentials({
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Senha", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          const authenticateUseCase = makeAuthenticateProfessionalUseCase();
+          const result = await authenticateUseCase.execute({
+            email: credentials.email as string,
+            password: credentials.password as string,
+          });
+
+          // Remover passwordHash antes de retornar
+          const { passwordHash, ...professionalWithoutPassword } = result.professional;
+          const professionalSafe: ProfessionalWithoutPassword = professionalWithoutPassword;
+
+          return {
+            id: result.professional.id,
+            email: result.professional.email,
+            name: result.professional.name,
+            professional: professionalSafe,
+            organization: result.organization,
+          };
+        } catch (error) {
+          console.error("Erro na autenticação:", error);
+          return null;
+        }
+      },
+    }),
+  ],
 };
 
 export const { auth, signIn, signOut } = NextAuth(authConfig);

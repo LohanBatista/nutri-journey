@@ -21,6 +21,7 @@ model Professional {
   name                String
   email               String   @unique
   passwordHash        String
+  role                String   @default("PROFESSIONAL") // "ADMIN" | "PROFESSIONAL"
   organizationId      String
   organization        Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   createdAt           DateTime @default(now())

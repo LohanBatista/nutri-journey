@@ -4,31 +4,60 @@
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --radius: 0.5rem;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    /* Light Theme - Cores de Nutrição (Verde Menta, Amarelo Suave) */
+    --background: 120 30% 98%;
+    --foreground: 140 20% 15%;
+    --card: 120 25% 100%;
+    --card-foreground: 140 20% 15%;
+    --popover: 120 25% 100%;
+    --popover-foreground: 140 20% 15%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 120 20% 95%;
+    --secondary-foreground: 140 20% 20%;
+    --muted: 120 15% 92%;
+    --muted-foreground: 140 10% 45%;
+    --accent: 48 96% 65%;
+    --accent-foreground: 140 20% 15%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 120 15% 88%;
+    --input: 120 15% 88%;
+    --ring: 142 71% 45%;
+    --radius: 0.75rem;
+    --chart-1: 142 71% 45%;
+    --chart-2: 48 96% 65%;
+    --chart-3: 32 95% 55%;
+    --chart-4: 160 60% 50%;
+    --chart-5: 200 80% 55%;
+  }
+
+  .dark {
+    /* Dark Theme - Cores de Nutrição (Verde Esmeralda, Amarelo Dourado) */
+    --background: 140 25% 8%;
+    --foreground: 120 15% 95%;
+    --card: 140 20% 12%;
+    --card-foreground: 120 15% 95%;
+    --popover: 140 20% 12%;
+    --popover-foreground: 120 15% 95%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 140 25% 8%;
+    --secondary: 140 18% 18%;
+    --secondary-foreground: 120 15% 95%;
+    --muted: 140 15% 20%;
+    --muted-foreground: 120 10% 65%;
+    --accent: 48 85% 55%;
+    --accent-foreground: 140 25% 8%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 140 15% 20%;
+    --input: 140 15% 20%;
+    --ring: 142 71% 45%;
+    --chart-1: 142 71% 45%;
+    --chart-2: 48 85% 55%;
+    --chart-3: 32 90% 50%;
+    --chart-4: 160 55% 45%;
+    --chart-5: 200 75% 50%;
   }
 }
 
@@ -38,5 +67,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }

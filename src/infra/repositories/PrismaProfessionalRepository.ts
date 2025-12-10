@@ -38,6 +38,7 @@ export class PrismaProfessionalRepository implements ProfessionalRepository {
         email: data.email,
         passwordHash: data.passwordHash,
         organizationId: data.organizationId,
+        role: data.role,
       },
     });
 
@@ -51,6 +52,7 @@ export class PrismaProfessionalRepository implements ProfessionalRepository {
         ...(data.name !== undefined && { name: data.name }),
         ...(data.email !== undefined && { email: data.email }),
         ...(data.passwordHash !== undefined && { passwordHash: data.passwordHash }),
+        ...(data.role !== undefined && { role: data.role }),
       },
     });
 
@@ -68,6 +70,7 @@ export class PrismaProfessionalRepository implements ProfessionalRepository {
     name: string;
     email: string;
     passwordHash: string;
+    role: string;
     organizationId: string;
     createdAt: Date;
     updatedAt: Date;
@@ -77,6 +80,7 @@ export class PrismaProfessionalRepository implements ProfessionalRepository {
       name: professional.name,
       email: professional.email,
       passwordHash: professional.passwordHash,
+      role: professional.role as "ADMIN" | "PROFESSIONAL",
       organizationId: professional.organizationId,
       createdAt: professional.createdAt,
       updatedAt: professional.updatedAt,
